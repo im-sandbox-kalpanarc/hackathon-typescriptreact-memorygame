@@ -9,6 +9,8 @@ interface Props {
 }
 
 const GameScreen: React.FC<Props> = ({ x, y, onEndGame }) => {
+
+  // State Variables
   const totalCards = x * y;
   const [cards, setCards] = useState<number[]>([]);
   const [clickedCards, setClickedCards] = useState<{ index: number, value: number }[]>([]);
@@ -17,36 +19,34 @@ const GameScreen: React.FC<Props> = ({ x, y, onEndGame }) => {
   const [moves, setMoves] = useState<number>(0);
   const [startTime, setStartTime] = useState<Date | null>(null);
   const [endTime, setEndTime] = useState<Date | null>(null);
+  const [scoredCards, setScoredCards] = useState<number[]>([]);
+
+  // Derived Variables
   const maxScore = totalCards / 2;
   const gameTime = startTime ? Math.floor(((endTime || new Date()).getTime() - startTime.getTime()) / 1000) : 0;
   const minutes = Math.floor(gameTime / 60);
   const seconds = Math.floor(gameTime % 60);
   const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  let finalScore = 0;
 
-
-  // Start the timer when the game starts
-  useEffect(() => {
-    setStartTime(new Date());
-  }, []);
-
-  // Stop the timer when the game ends
-  useEffect(() => {
-    if (score === maxScore) {
-      setEndTime(new Date());
-    }
-  }, [score]);
-
-  // Function to generate a shuffled array of card numbers
+  // Helper Functions
   const generateCards = () => {
     let arr = Array.from({ length: totalCards / 2 }, (_, i) => i + 1);
-    arr = [...arr, ...arr]; // duplicate the array to create pairs
-    arr.sort(() => Math.random() - 0.5); // shuffle the array
+    arr = [...arr, ...arr];
+    arr.sort(() => Math.random() - 0.5);
     setCards(arr);
   };
 
-  // Run generateCards once when the component mounts
-  useEffect(() => { generateCards(); }, []);
-  const [scoredCards, setScoredCards] = useState<number[]>([]);
+  const resetGame = () => {
+    setCards([]);
+    setClickedCards([]);
+    setMatchedCards([]);
+    setScore(0);
+    setMoves(0);
+    setStartTime(null);
+    setEndTime(null);
+    generateCards();
+  };
 
   const handleCardClick = (index: number) => {
     if (clickedCards.length === 2) {
@@ -80,29 +80,6 @@ const GameScreen: React.FC<Props> = ({ x, y, onEndGame }) => {
     });
     setMoves(moves + 1);
   };
-
-  useEffect(() => {
-    if (scoredCards.length > score) {
-      setScore(scoredCards.length);
-    }
-  }, [scoredCards]);
-
-  useEffect(() => {
-    generateCards();
-  }, []);
-
-  const resetGame = () => {
-    setCards([]);
-    setClickedCards([]);
-    setMatchedCards([]);
-    setScore(0);
-    setMoves(0);
-    setStartTime(null);
-    setEndTime(null);
-    generateCards(); // regenerate the cards for the new game
-  };
-
-  let finalScore = 0;
 
   const handleEndGame = useCallback(() => {
     setEndTime(new Date());
@@ -138,6 +115,14 @@ const GameScreen: React.FC<Props> = ({ x, y, onEndGame }) => {
       });
   }
 
+  // Effects
+  useEffect(() => { generateCards(); }, []);
+  useEffect(() => { setStartTime(new Date()); }, []);
+  useEffect(() => { if (score === maxScore) setEndTime(new Date()); }, [score]);
+  useEffect(() => { if (scoredCards.length > score) setScore(scoredCards.length); }, [scoredCards]);
+
+
+  // Render
   return (
     <div className="gamescreen">
       <div className="game-info">

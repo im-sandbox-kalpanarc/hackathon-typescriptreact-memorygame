@@ -8,6 +8,7 @@ interface EndScreenProps {
 }
 
 const EndScreen: React.FC<EndScreenProps> = ({ onRestartGame, score, timeTaken }) => {
+    // Render
     return (
         <div className="end-screen">
             <h1>Game Over</h1>

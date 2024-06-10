@@ -13,8 +13,10 @@ type GameData = {
 }
 
 const SplashScreen: React.FC<SplashScreenProps> = ({ onStartGame }) => {
+  // State Variables
   const [gameData, setGameData] = useState<GameData[]>([]);
 
+  // Effects
   useEffect(() => {
     fetch('http://localhost:5000/api/getGame')
       .then(response => response.json())
@@ -22,6 +24,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onStartGame }) => {
       .catch(error => console.error('Error:', error));
   }, []);
 
+  // Render
   return (
     <div className="screen">
       <h1>Welcome to My Game App!!</h1>

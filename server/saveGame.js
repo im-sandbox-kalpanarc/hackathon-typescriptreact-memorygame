@@ -1,14 +1,31 @@
-// Server-side code (Express.js)
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const app = express();
 const cors = require('cors');
 
-app.use(express.json());
+const app = express();
+const PORT = process.env.PORT || 5000;
 
+app.use(express.json());
 app.options('*', cors());
 app.use(cors());
+
+app.get('/api/test', (req, res) => {
+    res.send('Server is running properly');
+});
+
+app.get('/api/getGame', (req, res) => {
+    const filePath = path.join(__dirname, '../src/data/game_data.json');
+    fs.readFile(filePath, 'utf8', (err, data) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send(err);
+        }
+
+        const gameData = JSON.parse(data);
+        res.send(gameData);
+    });
+});
 
 app.post('/api/savePlayerGame', cors(), (req, res) => {
     const data = req.body;
@@ -17,7 +34,6 @@ app.post('/api/savePlayerGame', cors(), (req, res) => {
         const filePath = path.join(__dirname, '../src/data/game_data.json');
         let existingData = [];
 
-        // Check if file exists before reading
         if (fs.existsSync(filePath)) {
             existingData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         }
@@ -34,24 +50,6 @@ app.post('/api/savePlayerGame', cors(), (req, res) => {
     }
 });
 
-app.get('/api/test', (req, res) => {
-    res.send('Server is running properly');
-});
-
-app.get('/api/getGame', (req, res) => {
-    const filePath = path.join(__dirname, '../src/data/game_data.json'); // Use path.join here too
-    fs.readFile(filePath, 'utf8', (err, data) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send(err);
-        }
-
-        const gameData = JSON.parse(data);
-        res.send(gameData);
-    });
-});
-
-const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
